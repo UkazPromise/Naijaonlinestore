@@ -21,5 +21,8 @@
     "express.js": "^1.0.0",
     "firebase-admin": "^10.0.1",
     "nodemon": "^2.0.15"
+  },
+  "devDependencies": {
+    "@types/nodemon": "^1.19.1"
   }
 }
