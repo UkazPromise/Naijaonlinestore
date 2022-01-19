@@ -17,7 +17,7 @@ submitBtn.addEventListener('click', () => {
         showAlert('password should be 8 letters long');
     } else if(!number.value.length){
         showAlert('enter ur phone number');
-    } else if(Number(number.value) || number.value.length < 10){
+    } else if(!Number(number.value) || number.value.length < 10){
         showAlert('invalid number, please enter valid one');
     } else if(!tac.checked){
         showAlert('you must agree to our terms and conditions');
@@ -30,11 +30,10 @@ submitBtn.addEventListener('click', () => {
             password: password.value,
             number: number.value,
             tac: tac.checked,
-            notification: notification.value,
+            notification: notification.checked,
             seller: false
         })
     }
-    
 })
 
 //send data function
@@ -45,8 +44,17 @@ const sendData = (path, data) => {
         body: JSON.stringyfy(data)
     }).then((res) => res.json())
     .then(response => {
-        console.log(response);
+        processData(response);
     })
+} 
+
+const processData = () => {
+    loader.style.display = null;
+    if(data.alert){
+        showAlert(data.alert);
+    }   else if(data.name){
+        
+    }
 }
 
 // alert function
