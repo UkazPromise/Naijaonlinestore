@@ -9,7 +9,7 @@ const path = require('path');
 let serviceAccount = require("./naijaonlinestore-2d917-firebase-adminsdk-w9f4r-685afccbcb.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert(serviceAccount)
 });
 
 let db = admin.firestore();
@@ -40,14 +40,14 @@ app.post('/signup', (req, res) => {
     
     //form validations
     if(name.lenght < 3){
-        return res.json({'alert': 'name must be 3 letters long'});
-    } else if(!email.value.length){
+        return res.json({'alert': 'name must be 3 letters long'}); 
+    } else if(!email.length){
         return res.json({'alert': 'enter your email'});
-    } else if(password.value.length < 8){
+    } else if(password.length < 8){
         return res.json({'alert': 'password should be 8 letters long'});
-    } else if(!number.value.length){
+    } else if(!number.length){
         return res.json({'alert': 'enter ur phone number'});
-    } else if(!Number(number.value) || number.value.length < 10){
+    } else if(!Number(number) || number.lenght < 10){
         return res.json({'alert': 'invalid number, please enter valid one'});
     } else if(!tac){
         return res.json({'alert': 'you must agree to our terms and conditions'});
@@ -75,8 +75,64 @@ app.post('/signup', (req, res) => {
             })
         }
     })
+})
 
-    res.json('data recieved');
+// login route
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(staticPath, "login.html"));
+})
+
+app.post('/login', (req, res) => {
+    let{email, password } = req.body;
+
+    if(!email.length || !password.length){
+        return res.json({'alert': 'fill all the inputs'})
+    }
+
+    db.collection('users').doc(email).get()
+    .then(user => {
+        if(!user.exists) { // if email does not exists
+            return res.json({'alert': 'log in email does not exists'})
+        } else{
+            bcrypt.compare(password, user.data().password, (err, result) => {
+                if(result){
+                    let data = user.data();
+                    return res.json({
+                        name: data.name,
+                        email: data.email,
+                        seller: data.seller,
+                    })
+                } else{
+                    return res.json({'alert': 'password in incorrect'});
+                }
+            })
+        }
+    })
+})
+
+// seller route
+app.get('/seller', (req, res) => {
+    res.sendFile(path.join(staticPath, "seller.html"));
+})
+
+app.post('/seller', (req,res) => {
+    let { name, about, address, number, tac, legit, email } = req.body;
+    if(!name.length || !address.length || !about.length || number.length < 10  || 
+    !Number(number)){
+        return res.json({'alert': 'some information(s) is/are invalid'});
+    } else if(!tac || !legit){
+        return res.json({'alert': 'you must agree to terms and conditions'})
+    } else{
+        // update users seller status here.
+        db.collection('sellers').doc(email).set(req.body)
+        .then(data => {
+            db.collection('users').doc(email).update({
+                seller: true
+            }).then(data => {
+                res.json(true);
+            })
+        })
+    }
 })
 
 // 404 route
