@@ -6,7 +6,7 @@ const path = require('path');
 
 //firebase admin set up
 
-let serviceAccount = require("./naijaonlinestore-2d917-firebase-adminsdk-w9f4r-685afccbcb.json");
+let serviceAccount = require('process.env.FIREBASE_ADMINSDK_KEY');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
