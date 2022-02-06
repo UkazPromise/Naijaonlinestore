@@ -6,7 +6,7 @@ const path = require('path');
 
 //firebase admin set up
 
-let serviceAccount = require('process.env.FIREBASE_ADMINSDK_KEY');
+let serviceAccount = require("./naijaonlinestore-2d917-firebase-adminsdk-w9f4r-685afccbcb.json");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -21,15 +21,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // aws parameters
-const region = "us-east-1";
-const bucketName = "naija-online-store";
-const accessKeyId = process.env.AWS_ACCESS_KEY;
-const secretAccessKey = process.env.AWS_SECRET_KEY;
 
-aws.config.update({
-    region, 
-    accessKeyId, 
-    secretAccessKey
 })
 
 // init s3
@@ -177,7 +169,7 @@ app.post('/seller', (req,res) => {
 app.get('/add-product', (req, res) => {
     res.sendFile(path.join(staticPath, "addProduct.html"));
 })
-
+ 
 // get the upload link
 app.get('/s3url', (req, res) => {
     generateUrl(). then(url => res.json(url));
