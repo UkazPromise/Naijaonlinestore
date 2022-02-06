@@ -14,8 +14,46 @@ admin.initializeApp({
 
 let db = admin.firestore();
 
+// aws config
+const aws = require('aws-sdk');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+// aws parameters
+const region = "us-east-1";
+const bucketName = "naija-online-store";
+const accessKeyId = process.env.AWS_ACCESS_KEY;
+const secretAccessKey = process.env.AWS_SECRET_KEY;
+
+aws.config.update({
+    region, 
+    accessKeyId, 
+    secretAccessKey
+})
+
+// init s3
+const s3 = new aws.S3();
+
 // declare static path
 let staticPath = path.join(__dirname, "public");
+
+// generate image upload link
+async function generateUrl(){
+    let date = new Date();
+    let id = parseInt(Math.random() * 20000000000);
+
+    const imageName = `${id}${date.getTime()}.jpg`;
+
+    const params = ({
+        Bucket: bucketName,
+        key: imageName,
+        Expires: 300, // 300 ms
+        contentType:'images/jpeg'
+    })
+    const uploadUrl = await s3.getSignedUrlPromise('putObject', params);
+    return uploadUrl;
+}
 
 //initializing express.js
 const app = express();
@@ -133,6 +171,16 @@ app.post('/seller', (req,res) => {
             })
         })
     }
+})
+
+// add product
+app.get('/add-product', (req, res) => {
+    res.sendFile(path.join(staticPath, "addProduct.html"));
+})
+
+// get the upload link
+app.get('/s3url', (req, res) => {
+    generateUrl(). then(url => res.json(url));
 })
 
 // 404 route
